@@ -1,0 +1,100 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "▶️ Web - Run",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/MauiTeste.Web/MauiTeste.Web.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "▶️ MAUI Windows - Run",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/MauiTeste/MauiTeste.csproj",
+                "-f",
+                "net9.0-windows10.0.19041.0"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": "$msCompile",
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            }
+        },
+        {
+            "label": "🔨 Build - Web",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/MauiTeste.Web/MauiTeste.Web.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "🔨 Build - MAUI",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/MauiTeste/MauiTeste.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "🔨 Build - Todos",
+            "dependsOn": [
+                "🔨 Build - Web",
+                "🔨 Build - MAUI"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "🧹 Clean",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "clean",
+                "${workspaceFolder}/MauiTeste.sln"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "📦 Restore",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "restore",
+                "${workspaceFolder}/MauiTeste.sln"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
