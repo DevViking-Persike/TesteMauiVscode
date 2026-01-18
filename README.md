@@ -31,6 +31,8 @@ MauiTeste/
 ./run.sh build:all     # Build de todos os projetos
 ```
 
+Se a porta 5214 estiver ocupada, `./run.sh web` e `.\run.ps1 web` escolhem outra porta e imprimem a URL no terminal.
+
 ### VSCode Tasks:
 1. Pressione `Ctrl+Shift+P`
 2. Digite: `Tasks: Run Task`

@@ -39,11 +39,43 @@ function Show-Help {
     Write-Host ""
 }
 
+function Get-FreePort {
+    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+    $listener.Start()
+    $port = $listener.LocalEndpoint.Port
+    $listener.Stop()
+    return $port
+}
+
+function Test-PortFree {
+    param(
+        [Parameter(Mandatory=$true)]
+        [int]$Port
+    )
+
+    try {
+        $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, $Port)
+        $listener.Start()
+        $listener.Stop()
+        return $true
+    } catch {
+        return $false
+    }
+}
+
 switch ($Command) {
     "web" {
         Write-Host ""
         Write-Host "🚀 Rodando projeto Blazor Web..." -ForegroundColor Green
-        dotnet run --project MauiTeste.Web/MauiTeste.Web.csproj
+        $preferredPort = 5214
+        if (Test-PortFree -Port $preferredPort) {
+            $port = $preferredPort
+        } else {
+            $port = Get-FreePort
+        }
+        $env:ASPNETCORE_ENVIRONMENT = "Development"
+        Write-Host "🌐 Acesse: http://localhost:$port" -ForegroundColor Yellow
+        dotnet run --project MauiTeste.Web/MauiTeste.Web.csproj --urls "http://localhost:$port"
     }
     
     "maui" {

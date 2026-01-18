@@ -4,11 +4,9 @@
         {
             "label": "▶️ Web - Run",
             "type": "shell",
-            "command": "dotnet",
+            "command": "${workspaceFolder}/run.sh",
             "args": [
-                "run",
-                "--project",
-                "${workspaceFolder}/MauiTeste.Web/MauiTeste.Web.csproj"
+                "web"
             ],
             "problemMatcher": "$msCompile",
             "group": "none",
@@ -17,6 +15,19 @@
                 "panel": "new",
                 "showReuseMessage": false,
                 "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}/run.ps1",
+                    "web"
+                ]
             }
         },
         {

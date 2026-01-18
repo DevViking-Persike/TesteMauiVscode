@@ -31,6 +31,20 @@ show_help() {
     echo ""
 }
 
+get_free_port() {
+    python3 - <<'PY'
+import socket
+s = socket.socket()
+s.bind(("", 0))
+print(s.getsockname()[1])
+s.close()
+PY
+}
+
+is_port_in_use() {
+    lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1
+}
+
 # Detectar sistema operacional
 OS_TYPE="unknown"
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -43,8 +57,15 @@ fi
 
 case "$1" in
     web)
+        preferred_port=5214
+        port="$preferred_port"
+        if is_port_in_use "$port"; then
+            port="$(get_free_port)"
+        fi
+        export ASPNETCORE_ENVIRONMENT="Development"
         echo -e "${GREEN}🚀 Rodando projeto Blazor Web...${NC}"
-        dotnet run --project MauiTeste.Web/MauiTeste.Web.csproj
+        echo -e "${YELLOW}🌐 Acesse: http://localhost:${port}${NC}"
+        dotnet run --project MauiTeste.Web/MauiTeste.Web.csproj --urls "http://localhost:${port}"
         ;;
     
     maui)
@@ -83,7 +104,12 @@ case "$1" in
         dotnet build MauiTeste/MauiTeste.csproj -f net9.0-maccatalyst
         if [ $? -eq 0 ]; then
             echo -e "${GREEN}✅ Build concluído! Iniciando aplicação...${NC}"
-            open MauiTeste/bin/Debug/net9.0-maccatalyst/MauiTeste.app
+            APP_PATH=$(find MauiTeste/bin/Debug/net9.0-maccatalyst -maxdepth 3 -type d -name "MauiTeste.app" -print -quit)
+            if [[ -n "$APP_PATH" ]]; then
+                open "$APP_PATH"
+            else
+                echo -e "${RED}❌ App não encontrada. Verifique o build em MauiTeste/bin/Debug/net9.0-maccatalyst${NC}"
+            fi
         else
             echo -e "${RED}❌ Falha no build${NC}"
         fi
@@ -92,7 +118,19 @@ case "$1" in
     maui-android)
         echo -e "${GREEN}🏗️  Buildando MAUI Android...${NC}"
         dotnet build MauiTeste/MauiTeste.csproj -f net9.0-android
-        echo -e "${YELLOW}💡 Use Android Studio ou adb para instalar no dispositivo${NC}"
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✅ Build concluído! Instalando no emulador...${NC}"
+            APK=$(find MauiTeste/bin/Debug/net9.0-android -name "*-Signed.apk" | head -1)
+            if [[ -n "$APK" ]]; then
+                adb install -r "$APK"
+                echo -e "${GREEN}✅ Iniciando aplicação...${NC}"
+                adb shell monkey -p com.companyname.mauiteste -c android.intent.category.LAUNCHER 1
+            else
+                echo -e "${RED}❌ APK não encontrado${NC}"
+            fi
+        else
+            echo -e "${RED}❌ Falha no build${NC}"
+        fi
         ;;
     
     maui-ios)
@@ -100,9 +138,8 @@ case "$1" in
             echo -e "${RED}❌ MAUI iOS só pode rodar no macOS${NC}"
             exit 1
         fi
-        echo -e "${GREEN}🏗️  Buildando MAUI iOS...${NC}"
-        dotnet build MauiTeste/MauiTeste.csproj -f net9.0-ios
-        echo -e "${YELLOW}💡 Use Xcode ou simulador iOS para executar${NC}"
+        echo -e "${GREEN}🏗️  Buildando e executando MAUI iOS no simulador...${NC}"
+        dotnet build MauiTeste/MauiTeste.csproj -f net9.0-ios -t:Run
         ;;
     
     build:web)

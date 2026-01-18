@@ -33,6 +33,8 @@ cd D:\CODE\MauiTeste\MauiTeste
 .\run.ps1
 ```
 
+Se a porta 5214 estiver ocupada, o script escolhe outra porta e imprime a URL no terminal.
+
 ---
 
 ## 2️⃣ Via VSCode Tasks
@@ -53,6 +55,8 @@ cd D:\CODE\MauiTeste\MauiTeste
 - **🔨 Build - Todos** → Build de todos os projetos
 - **🧹 Clean** → Limpa todos os projetos
 - **📦 Restore** → Restaura dependências
+
+Obs: a task **▶️ Web - Run** usa o script e escolhe uma porta livre quando 5214 estiver ocupada.
 
 ### Atalho rápido:
 - Pressione `Ctrl+Shift+B` para abrir o menu de Build
@@ -80,6 +84,8 @@ dotnet clean MauiTeste.sln
 # Restaurar
 dotnet restore MauiTeste.sln
 ```
+
+Se precisar de outra porta no Web, use `--urls http://localhost:PORTA`.
 
 ---
 
